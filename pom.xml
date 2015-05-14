@@ -1068,7 +1068,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.3.2.1</version>
+          <version>1.3.1</version>
           <executions>
             <execution>
               <id>enforce-versions</id>
@@ -1451,6 +1451,7 @@
           <configLocation>scalastyle-config.xml</configLocation>
           <outputFile>scalastyle-output.xml</outputFile>
           <outputEncoding>UTF-8</outputEncoding>
+            <inputEncoding>UTF-8</inputEncoding>
         </configuration>
         <executions>
           <execution>
@@ -1473,7 +1474,22 @@
     </plugins>
   </build>
 
-  <profiles>
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name> Release Repository</name>
+            <url>http://172.16.2.222:8081/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <name> Snapshot Repository</name>
+            <url>http://172.16.2.222:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
+    <profiles>
 
     <!--
       This profile is enabled automatically by the sbt built. It changes the scope for the guava
