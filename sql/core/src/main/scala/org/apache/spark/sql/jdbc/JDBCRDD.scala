@@ -37,41 +37,41 @@ private[sql] object JDBCRDD extends Logging {
    */
   private def getCatalystType(sqlType: Int): DataType = {
     val answer = sqlType match {
-      case java.sql.Types.ARRAY         => null
-      case java.sql.Types.BIGINT        => LongType
-      case java.sql.Types.BINARY        => BinaryType
-      case java.sql.Types.BIT           => BooleanType // Per JDBC; Quirks handles quirky drivers.
-      case java.sql.Types.BLOB          => BinaryType
-      case java.sql.Types.BOOLEAN       => BooleanType
-      case java.sql.Types.CHAR          => StringType
-      case java.sql.Types.CLOB          => StringType
-      case java.sql.Types.DATALINK      => null
-      case java.sql.Types.DATE          => DateType
-      case java.sql.Types.DECIMAL       => DecimalType.Unlimited
-      case java.sql.Types.DISTINCT      => null
-      case java.sql.Types.DOUBLE        => DoubleType
-      case java.sql.Types.FLOAT         => FloatType
-      case java.sql.Types.INTEGER       => IntegerType
-      case java.sql.Types.JAVA_OBJECT   => null
-      case java.sql.Types.LONGNVARCHAR  => StringType
+      case java.sql.Types.ARRAY => null
+      case java.sql.Types.BIGINT => LongType
+      case java.sql.Types.BINARY => BinaryType
+      case java.sql.Types.BIT => BooleanType // Per JDBC; Quirks handles quirky drivers.
+      case java.sql.Types.BLOB => BinaryType
+      case java.sql.Types.BOOLEAN => BooleanType
+      case java.sql.Types.CHAR => StringType
+      case java.sql.Types.CLOB => StringType
+      case java.sql.Types.DATALINK => null
+      case java.sql.Types.DATE => DateType
+      case java.sql.Types.DECIMAL => DecimalType.Unlimited
+      case java.sql.Types.DISTINCT => null
+      case java.sql.Types.DOUBLE => DoubleType
+      case java.sql.Types.FLOAT => FloatType
+      case java.sql.Types.INTEGER => IntegerType
+      case java.sql.Types.JAVA_OBJECT => null
+      case java.sql.Types.LONGNVARCHAR => StringType
       case java.sql.Types.LONGVARBINARY => BinaryType
-      case java.sql.Types.LONGVARCHAR   => StringType
-      case java.sql.Types.NCHAR         => StringType
-      case java.sql.Types.NCLOB         => StringType
-      case java.sql.Types.NULL          => null
-      case java.sql.Types.NUMERIC       => DecimalType.Unlimited
-      case java.sql.Types.OTHER         => null
-      case java.sql.Types.REAL          => DoubleType
-      case java.sql.Types.REF           => StringType
-      case java.sql.Types.ROWID         => LongType
-      case java.sql.Types.SMALLINT      => IntegerType
-      case java.sql.Types.SQLXML        => StringType
-      case java.sql.Types.STRUCT        => StringType
-      case java.sql.Types.TIME          => TimestampType
-      case java.sql.Types.TIMESTAMP     => TimestampType
-      case java.sql.Types.TINYINT       => IntegerType
-      case java.sql.Types.VARBINARY     => BinaryType
-      case java.sql.Types.VARCHAR       => StringType
+      case java.sql.Types.LONGVARCHAR => StringType
+      case java.sql.Types.NCHAR => StringType
+      case java.sql.Types.NCLOB => StringType
+      case java.sql.Types.NULL => null
+      case java.sql.Types.NUMERIC => DecimalType.Unlimited
+      case java.sql.Types.OTHER => null
+      case java.sql.Types.REAL => DoubleType
+      case java.sql.Types.REF => StringType
+      case java.sql.Types.ROWID => LongType
+      case java.sql.Types.SMALLINT => IntegerType
+      case java.sql.Types.SQLXML => StringType
+      case java.sql.Types.STRUCT => StringType
+      case java.sql.Types.TIME => TimestampType
+      case java.sql.Types.TIMESTAMP => TimestampType
+      case java.sql.Types.TINYINT => IntegerType
+      case java.sql.Types.VARBINARY => BinaryType
+      case java.sql.Types.VARCHAR => StringType
       case _ => null
     }
 
@@ -85,7 +85,7 @@ private[sql] object JDBCRDD extends Logging {
    *
    * @param url - The JDBC url to fetch information from.
    * @param table - The table name of the desired table.  This may also be a
-   *   SQL query wrapped in parentheses.
+   *              SQL query wrapped in parentheses.
    *
    * @return A StructType giving the table's Catalyst schema.
    * @throws SQLException if the table specification is garbage.
@@ -133,8 +133,12 @@ private[sql] object JDBCRDD extends Logging {
    * @return A Catalyst schema corresponding to columns in the given order.
    */
   private def pruneSchema(schema: StructType, columns: Array[String]): StructType = {
-    val fieldMap = Map(schema.fields map { x => x.metadata.getString("name") -> x }: _*)
-    new StructType(columns map { name => fieldMap(name) })
+    val fieldMap = Map(schema.fields map {
+      x => x.metadata.getString("name") -> x
+    }: _*)
+    new StructType(columns map {
+      name => fieldMap(name)
+    })
   }
 
   /**
@@ -160,6 +164,7 @@ private[sql] object JDBCRDD extends Logging {
       DriverManager.getConnection(url, properties)
     }
   }
+
   /**
    * Build and return JDBCRDD from the given information.
    *
@@ -171,20 +176,20 @@ private[sql] object JDBCRDD extends Logging {
    * @param requiredColumns - The names of the columns to SELECT.
    * @param filters - The filters to include in all WHERE clauses.
    * @param parts - An array of JDBCPartitions specifying partition ids and
-   *    per-partition WHERE clauses.
+   *              per-partition WHERE clauses.
    *
    * @return An RDD representing "SELECT requiredColumns FROM fqTable".
    */
   def scanTable(
-      sc: SparkContext,
-      schema: StructType,
-      driver: String,
-      url: String,
-      properties: Properties,
-      fqTable: String,
-      requiredColumns: Array[String],
-      filters: Array[Filter],
-      parts: Array[Partition]): RDD[Row] = {
+                 sc: SparkContext,
+                 schema: StructType,
+                 driver: String,
+                 url: String,
+                 properties: Properties,
+                 fqTable: String,
+                 requiredColumns: Array[String],
+                 filters: Array[Filter],
+                 parts: Array[Partition]): RDD[Row] = {
 
     val prunedSchema = pruneSchema(schema, requiredColumns)
 
@@ -206,13 +211,13 @@ private[sql] object JDBCRDD extends Logging {
  * needs to fetch the schema while the workers need to fetch the data.
  */
 private[sql] class JDBCRDD(
-    sc: SparkContext,
-    getConnection: () => Connection,
-    schema: StructType,
-    fqTable: String,
-    columns: Array[String],
-    filters: Array[Filter],
-    partitions: Array[Partition])
+                            sc: SparkContext,
+                            getConnection: () => Connection,
+                            schema: StructType,
+                            fqTable: String,
+                            columns: Array[String],
+                            filters: Array[Filter],
+                            partitions: Array[Partition])
   extends RDD[Row](sc, Nil) {
 
   /**
@@ -281,16 +286,27 @@ private[sql] class JDBCRDD(
   // Is there a better way to do this?  I'd rather be using a type that
   // contains only the tags I define.
   abstract class JDBCConversion
+
   case object BooleanConversion extends JDBCConversion
+
   case object DateConversion extends JDBCConversion
+
   case object DecimalConversion extends JDBCConversion
+
   case object DoubleConversion extends JDBCConversion
+
   case object FloatConversion extends JDBCConversion
+
   case object IntegerConversion extends JDBCConversion
+
   case object LongConversion extends JDBCConversion
+
   case object BinaryLongConversion extends JDBCConversion
+
   case object StringConversion extends JDBCConversion
+
   case object TimestampConversion extends JDBCConversion
+
   case object BinaryConversion extends JDBCConversion
 
   /**
@@ -298,18 +314,18 @@ private[sql] class JDBCRDD(
    */
   def getConversions(schema: StructType): Array[JDBCConversion] = {
     schema.fields.map(sf => sf.dataType match {
-      case BooleanType           => BooleanConversion
-      case DateType              => DateConversion
+      case BooleanType => BooleanConversion
+      case DateType => DateConversion
       case DecimalType.Unlimited => DecimalConversion
-      case DoubleType            => DoubleConversion
-      case FloatType             => FloatConversion
-      case IntegerType           => IntegerConversion
-      case LongType              =>
+      case DoubleType => DoubleConversion
+      case FloatType => FloatConversion
+      case IntegerType => IntegerConversion
+      case LongType =>
         if (sf.metadata.contains("binarylong")) BinaryLongConversion else LongConversion
-      case StringType            => StringConversion
-      case TimestampType         => TimestampConversion
-      case BinaryType            => BinaryConversion
-      case _                     => throw new IllegalArgumentException(s"Unsupported field $sf")
+      case StringType => StringConversion
+      case TimestampType => TimestampConversion
+      case BinaryType => BinaryConversion
+      case _ => throw new IllegalArgumentException(s"Unsupported field $sf")
     }).toArray
   }
 
@@ -317,14 +333,15 @@ private[sql] class JDBCRDD(
   /**
    * Runs the SQL query against the JDBC driver.
    */
-  override def compute(thePart: Partition, context: TaskContext): Iterator[Row] = new Iterator[Row]
-  {
+  override def compute(thePart: Partition, context: TaskContext): Iterator[Row] = new Iterator[Row] {
     var closed = false
     var finished = false
     var gotNext = false
     var nextValue: Row = null
 
-    context.addTaskCompletionListener{ context => close() }
+    context.addTaskCompletionListener {
+      context => close()
+    }
     val part = thePart.asInstanceOf[JDBCPartition]
     val conn = getConnection()
 
@@ -336,7 +353,7 @@ private[sql] class JDBCRDD(
 
     val sqlText = s"SELECT $columnList FROM $fqTable $myWhereClause"
     val stmt = conn.prepareStatement(sqlText,
-        ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
+      ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
     val rs = stmt.executeQuery()
 
     val conversions = getConversions(schema)
@@ -348,16 +365,22 @@ private[sql] class JDBCRDD(
         while (i < conversions.length) {
           val pos = i + 1
           conversions(i) match {
-            case BooleanConversion    => mutableRow.setBoolean(i, rs.getBoolean(pos))
-            case DateConversion       => mutableRow.update(i, rs.getDate(pos))
-            case DecimalConversion    => mutableRow.update(i, rs.getBigDecimal(pos))
-            case DoubleConversion     => mutableRow.setDouble(i, rs.getDouble(pos))
-            case FloatConversion      => mutableRow.setFloat(i, rs.getFloat(pos))
-            case IntegerConversion    => mutableRow.setInt(i, rs.getInt(pos))
-            case LongConversion       => mutableRow.setLong(i, rs.getLong(pos))
-            case StringConversion     => mutableRow.setString(i, rs.getString(pos))
-            case TimestampConversion  => mutableRow.update(i, rs.getTimestamp(pos))
-            case BinaryConversion     => mutableRow.update(i, rs.getBytes(pos))
+            case BooleanConversion => mutableRow.setBoolean(i, rs.getBoolean(pos))
+            case DateConversion => mutableRow.update(i, rs.getDate(pos))
+            case DecimalConversion =>
+              val decimalVal = rs.getBigDecimal(pos)
+              if (decimalVal == null) {
+                mutableRow.update(i, null)
+              } else {
+                mutableRow.update(i, Decimal(decimalVal))
+              }
+            case DoubleConversion => mutableRow.setDouble(i, rs.getDouble(pos))
+            case FloatConversion => mutableRow.setFloat(i, rs.getFloat(pos))
+            case IntegerConversion => mutableRow.setInt(i, rs.getInt(pos))
+            case LongConversion => mutableRow.setLong(i, rs.getLong(pos))
+            case StringConversion => mutableRow.setString(i, rs.getString(pos))
+            case TimestampConversion => mutableRow.update(i, rs.getTimestamp(pos))
+            case BinaryConversion => mutableRow.update(i, rs.getBytes(pos))
             case BinaryLongConversion => {
               val bytes = rs.getBytes(pos)
               var ans = 0L
